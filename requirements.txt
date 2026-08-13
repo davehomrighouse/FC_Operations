@@ -1,0 +1,5 @@
+gradio          # Web interface for the HuggingFace Space
+scikit-learn    # Machine learning pipeline and Logistic Regression
+joblib          # Model serialization/deserialization
+numpy           # Numerical operations
+pandas          # DataFrame creation
