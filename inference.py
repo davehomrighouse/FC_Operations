@@ -1,0 +1,58 @@
+import joblib
+import numpy as np
+import pandas as pd
+
+# Load artifacts at startup. The files were dumped from
+# notebook FC_Operations_Risk_Predictions.ipynb
+
+model_pipeline = joblib.load("model/logistic_backlog_pipeline.pkl")
+model_metadata = joblib.load("model/deployment_metadata.pkl")
+
+class_threshold = model_metadata["classification_threshold"]
+model_features = model_metadata["model_features"]
+
+positive_class = model_metadata["positive_class"]
+negative_class = model_metadata["negative_class"]
+
+def create_dataframe():
+    # Construct model input. Will be in the same format as what
+    # was exported in the notebook FC_Operations_Risk_Predictions.ipynb
+    input_data = pd.DataFrame([{
+        "work_pressure": work_pressure,
+        "packers_assigned": packers_assigned,
+        "bottleneck_flag": bottleneck_flag
+        }])
+
+    # Enforce expected model features
+    input_data = input_data[model_features]
+
+    return input_data
+    
+def predict(backlog_units, planned_work, packers_assigned, bottleneck_flag):
+
+    # If planned work was specified as 0, or not populated, it is
+    # assumed there is no risk per business logic.
+    
+    if planned_work <= 0:
+        probability = 0.0
+        prediction = metadata["negative_class"]
+        
+    else:
+        # Engineer model feature. This calculation matches what appears
+        # in the notebook FC_Operations_Risk_Predictions.ipynb
+        work_pressure = backlog_units / planned_work
+        
+        input_data = create_dataframe()
+        
+        # Generate probability from the first (and only) row
+        # for the positive_class (i.e. next_hour_backlog_risk = 1)
+        probability = model_pipeline.predict_proba(input_data)[0, 1]
+    
+        # Apply deployment threshold
+        if probability >= metadata["classification_threshold"]:
+            prediction = metadata["positive_class"]
+        else:
+            prediction = metadata["negative_class"]
+    
+    return prediction, probability
+
