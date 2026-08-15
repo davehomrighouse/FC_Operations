@@ -33,7 +33,19 @@ def predict(backlog_units, planned_work, packers_assigned, bottleneck_flag):
     # If planned work was specified as 0, or not populated, it is
     # assumed there is no risk per business logic.
     
-    if planned_work <= 0:
+    if current_backlog < 0:
+        raise ValueError("Current Backlog cannot be negative.")
+
+    if planned_work < 0:
+        raise ValueError("Planned Work cannot be negative.")
+
+    if packers_assigned < 0:
+        raise ValueError("Packers Assigned cannot be negative.")
+
+    if bottleneck_flag not in [0, 1]:
+        raise ValueError("Bottleneck must either be 0 or 1.")
+    
+    if planned_work == 0:
         probability = 0.0
         prediction = metadata["negative_class"]
         
