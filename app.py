@@ -67,4 +67,5 @@ with gr.Blocks() as demo:
         outputs=[pred_label, pred_conf]
     )
 
-demo.launch()
+if __name__ == "__main__":
+    demo.launch()
