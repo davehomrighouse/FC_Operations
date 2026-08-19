@@ -5,8 +5,11 @@ import pandas as pd
 # Load artifacts at startup. The files were dumped from
 # notebook FC_Operations_Risk_Predictions.ipynb
 
-model_pipeline = joblib.load("model/logistic_backlog_pipeline.pkl")
-model_metadata = joblib.load("model/deployment_metadata.pkl")
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_DIR = BASE_DIR/"model"
+
+model_pipeline = joblib.load(MODEL_DIR/"logistic_backlog_pipeline.pkl")
+model_metadata = joblib.load(MODEL_DIR/"deployment_metadata.pkl")
 
 class_threshold = model_metadata["classification_threshold"]
 model_features = model_metadata["model_features"]
