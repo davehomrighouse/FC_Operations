@@ -1,6 +1,5 @@
 import gradio as gr
 from inference import predict
-from pathlib import Path
 
 def run_model(current_backlog, planned_work, packers_assigned, bottleneck):
 
