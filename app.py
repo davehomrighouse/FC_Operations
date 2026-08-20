@@ -12,11 +12,11 @@ def run_model(current_backlog, planned_work, packers_assigned, bottleneck):
     if packers_assigned is None:
         return "Enter Packers Assigned", ""
 
-    if packers_assigned == 0:
-        if current_backlog > 0 or planned_work > 0:
+    if current_backlog > 0 or planned_work > 0:
+        if packers_assigned == 0:
             return "Backlog Risk", ""
-        else:
-            return "No Backlog Risk", ""
+    else:
+        return "No Backlog Risk", ""
 
     prediction, probability = predict(current_backlog, planned_work, packers_assigned, bottleneck)
 
