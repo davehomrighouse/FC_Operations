@@ -51,7 +51,7 @@ def predict(current_backlog, planned_work, packers_assigned, bottleneck_flag):
     
     if planned_work == 0:
         probability = 0.0
-        prediction = metadata["negative_class"]
+        prediction = model_metadata["negative_class"]
         
     else:
         # Engineer model feature. This calculation matches what appears
@@ -65,10 +65,10 @@ def predict(current_backlog, planned_work, packers_assigned, bottleneck_flag):
         probability = model_pipeline.predict_proba(input_data)[0, 1]
     
         # Apply deployment threshold
-        if probability >= metadata["classification_threshold"]:
-            prediction = metadata["positive_class"]
+        if probability >= model_metadata["classification_threshold"]:
+            prediction = model_metadata["positive_class"]
         else:
-            prediction = metadata["negative_class"]
+            prediction = model_metadata["negative_class"]
     
     return prediction, probability
 
