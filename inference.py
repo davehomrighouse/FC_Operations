@@ -53,27 +53,26 @@ def predict(current_backlog, planned_work, packers_assigned, bottleneck_flag):
         probability = None
         prediction = model_metadata["negative_class"]
 
-    elif:
-        if packers_assigned == 0:
-            probability = None
+    elif packers_assigned == 0:
+        probability = None
+        prediction = model_metadata["positive_class"]
+        
+    else:
+        # Engineer model feature. This calculation matches what appears
+        # in the notebook FC_Operations_Risk_Predictions.ipynb
+        work_pressure = backlog_units / planned_work
+            
+        input_data = create_dataframe(work_pressure, packers_assigned, bottleneck_flag)
+            
+        # Generate probability from the first (and only) row
+        # for the positive_class (i.e. next_hour_backlog_risk = 1)
+        probability = model_pipeline.predict_proba(input_data)[0, 1]
+        
+        # Apply deployment threshold
+        if probability >= model_metadata["classification_threshold"]:
             prediction = model_metadata["positive_class"]
-        
         else:
-            # Engineer model feature. This calculation matches what appears
-            # in the notebook FC_Operations_Risk_Predictions.ipynb
-            work_pressure = backlog_units / planned_work
-            
-            input_data = create_dataframe(work_pressure, packers_assigned, bottleneck_flag)
-            
-            # Generate probability from the first (and only) row
-            # for the positive_class (i.e. next_hour_backlog_risk = 1)
-            probability = model_pipeline.predict_proba(input_data)[0, 1]
-        
-            # Apply deployment threshold
-            if probability >= model_metadata["classification_threshold"]:
-                prediction = model_metadata["positive_class"]
-            else:
-                prediction = model_metadata["negative_class"]
+            prediction = model_metadata["negative_class"]
         
     return prediction, probability
 
