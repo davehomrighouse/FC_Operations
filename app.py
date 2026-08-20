@@ -9,7 +9,7 @@ def run_model(current_backlog, planned_work, packers_assigned, bottleneck):
     if planned_work is None:
         return "Enter Planned Work", ""
 
-    if packers_assigned is None:
+    if packers_assigned is None or packers_assigned == 0:
         return "Enter Packers Assigned", ""
 
     prediction, probability = predict(current_backlog, planned_work, packers_assigned, bottleneck)
