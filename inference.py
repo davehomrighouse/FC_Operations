@@ -18,7 +18,7 @@ model_features = model_metadata["model_features"]
 positive_class = model_metadata["positive_class"]
 negative_class = model_metadata["negative_class"]
 
-def create_dataframe():
+def create_dataframe(work_pressure, packers_assigned, bottleneck_flag):
     # Construct model input. Will be in the same format as what
     # was exported in the notebook FC_Operations_Risk_Predictions.ipynb
     input_data = pd.DataFrame([{
@@ -32,7 +32,7 @@ def create_dataframe():
 
     return input_data
     
-def predict(backlog_units, planned_work, packers_assigned, bottleneck_flag):
+def predict(current_backlog, planned_work, packers_assigned, bottleneck_flag):
 
     # If planned work was specified as 0, or not populated, it is
     # assumed there is no risk per business logic.
@@ -58,7 +58,7 @@ def predict(backlog_units, planned_work, packers_assigned, bottleneck_flag):
         # in the notebook FC_Operations_Risk_Predictions.ipynb
         work_pressure = backlog_units / planned_work
         
-        input_data = create_dataframe()
+        input_data = create_dataframe(work_pressure, packers_assigned, bottleneck_flag)
         
         # Generate probability from the first (and only) row
         # for the positive_class (i.e. next_hour_backlog_risk = 1)
