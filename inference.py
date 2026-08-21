@@ -49,9 +49,12 @@ def predict(current_backlog, planned_work, packers_assigned, bottleneck_flag):
     if bottleneck_flag not in [0, 1]:
         raise ValueError("Bottleneck must either be 0 or 1.")
     
-    if planned_work == 0 and current_backlog == 0:
-        probability = None
-        prediction = model_metadata["negative_class"]
+    if planned_work == 0:
+        probability = None        
+        if current_backlog == 0:
+            prediction = model_metadata["negative_class"]
+        else:
+            prediction = "Prediction Unavailable"
 
     elif packers_assigned == 0 and (backlog_units > 0 or planned_work > 0):
         probability = None
