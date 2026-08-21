@@ -53,7 +53,7 @@ def predict(current_backlog, planned_work, packers_assigned, bottleneck_flag):
         probability = None
         prediction = model_metadata["negative_class"]
 
-    elif packers_assigned == 0:
+    elif packers_assigned == 0 and (backlog_units > 0 or planned_work > 0):
         probability = None
         prediction = model_metadata["positive_class"]
         
