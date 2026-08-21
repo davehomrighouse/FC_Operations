@@ -56,7 +56,7 @@ def predict(current_backlog, planned_work, packers_assigned, bottleneck_flag):
         else:
             prediction = "Prediction unavailable — the model was not trained for zero planned work with an existing backlog."
 
-    elif packers_assigned == 0 and (backlog_units > 0 or planned_work > 0):
+    elif packers_assigned == 0 and (current_backlog > 0 or planned_work > 0):
         probability = None
         prediction = model_metadata["positive_class"]
         
