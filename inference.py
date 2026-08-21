@@ -60,7 +60,7 @@ def predict(current_backlog, planned_work, packers_assigned, bottleneck_flag):
     else:
         # Engineer model feature. This calculation matches what appears
         # in the notebook FC_Operations_Risk_Predictions.ipynb
-        work_pressure = backlog_units / planned_work
+        work_pressure = current_backlog / planned_work
             
         input_data = create_dataframe(work_pressure, packers_assigned, bottleneck_flag)
             
