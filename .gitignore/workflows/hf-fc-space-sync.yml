@@ -13,4 +13,4 @@ jobs:
         with:
           github_repo_id: ${{ github.repository }}
           huggingface_repo_id: homrighoused/FC_Operations
-          hf_token: ${{ secrets.HUGGING_FACE }}
+          hf_token: ${{ secrets.FC_OPERATIONS_HUGGING_FACE }}
