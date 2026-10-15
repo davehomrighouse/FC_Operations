@@ -32,11 +32,10 @@ The application accepts four operational inputs:
 - **Current Backlog** — units remaining to be processed entering the next hour.
 - **Planned Work** — expected units scheduled for the next hour.
 - **Packers Assigned** — number of packers assigned for the upcoming hour.
-- **Bottleneck Present** — indicates whether an operational bottleneck is currently present.
 
 The application internally engineers an additional feature:
 
-`work_pressure = current_backlog / planned_work`
+`capacity_gap = available_work - line_capacity'
 
 This represents the size of the existing backlog relative to the next hour's planned workload.
 
@@ -44,11 +43,9 @@ This represents the size of the existing backlog relative to the next hour's pla
 
 The deployed model is a **Logistic Regression classifier** implemented using Scikit-learn.
 
-The final model uses three predictive features:
+The final model uses one predictive feature:
 
-- `work_pressure`
-- `packers_assigned`
-- `bottleneck_flag`
+- `capacity_gap`
 
 The complete Scikit-learn preprocessing and classification pipeline is serialized and loaded by the application for inference.
 
