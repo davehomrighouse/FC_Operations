@@ -3,7 +3,7 @@ import gradio as gr
 from inference import predict
 
 # Test
-def run_model(current_backlog, planned_work, packers_assigned, bottleneck):
+def run_model(current_backlog, planned_work, packers_assigned):
 
     if current_backlog is None:
         return "Enter Current Backlog", ""
@@ -14,7 +14,7 @@ def run_model(current_backlog, planned_work, packers_assigned, bottleneck):
     if packers_assigned is None:
         return "Enter Packers Assigned", ""
 
-    prediction, probability = predict(current_backlog, planned_work, packers_assigned, bottleneck)
+    prediction, probability = predict(current_backlog, planned_work, packers_assigned)
 
     if probability is None:
         probability_display = "N/A"
@@ -51,15 +51,6 @@ with gr.Blocks() as demo:
         placeholder="Enter number here..."
     )
 
-    bottleneck = gr.Radio(
-        label="Is there a bottleneck present?",
-        choices=[
-            ("No", 0),
-            ("Yes", 1)
-        ],
-        value=0
-    )
-
     predict_btn = gr.Button("Predict Backlog Risk")
 
     pred_label = gr.Textbox(label="Predicted Backlog Risk")
@@ -67,7 +58,7 @@ with gr.Blocks() as demo:
 
     predict_btn.click(
         fn=run_model,
-        inputs=[current_backlog, planned_work, packers_assigned, bottleneck],
+        inputs=[current_backlog, planned_work, packers_assigned],
         outputs=[pred_label, pred_conf]
     )
 
