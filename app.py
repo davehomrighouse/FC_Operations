@@ -14,7 +14,7 @@ def run_model(current_backlog, planned_work, packers_assigned):
     if packers_assigned is None:
         return "Enter Packers Assigned", ""
 
-    prediction, probability = predict(current_backlog, planned_work, packers_assigned)
+    prediction, probability = predict(current_backlog, planned_work, packers_assigned, expected_packing_rate)
 
     if probability is None:
         probability_display = "N/A"
@@ -51,6 +51,13 @@ with gr.Blocks() as demo:
         placeholder="Enter number here..."
     )
 
+    packing_rate = 70
+    expected_packing_rate = gr.Number(
+        label="Expected Packing Rate (units/packer/hour).",
+        value=packing_rate,
+        disabled=True
+    )
+
     predict_btn = gr.Button("Predict Backlog Risk")
 
     pred_label = gr.Textbox(label="Predicted Backlog Risk")
@@ -58,7 +65,7 @@ with gr.Blocks() as demo:
 
     predict_btn.click(
         fn=run_model,
-        inputs=[current_backlog, planned_work, packers_assigned],
+        inputs=[current_backlog, planned_work, packers_assigned, expected_packing_rate],
         outputs=[pred_label, pred_conf]
     )
 

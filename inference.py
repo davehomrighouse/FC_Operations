@@ -9,7 +9,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_DIR = BASE_DIR/"model"
 
-model_pipeline = joblib.load(MODEL_DIR/"logistic_backlog_pipeline.pkl")
+model_pipeline = joblib.load(MODEL_DIR/"random_forest_pipeline.pkl")
 model_metadata = joblib.load(MODEL_DIR/"deployment_metadata.pkl")
 
 class_threshold = model_metadata["classification_threshold"]
@@ -18,64 +18,67 @@ model_features = model_metadata["model_features"]
 positive_class = model_metadata["positive_class"]
 negative_class = model_metadata["negative_class"]
 
-def create_dataframe(work_pressure, packers_assigned, bottleneck_flag):
+def calculate_capacity_gap(
+    current_backlog,
+    expected_incoming_work,
+    packers_assigned,
+    expected_packing_rate
+):
+    if current_backlog < 0 or expected_incoming_work < 0:
+        raise ValueError("Work volumes cannot be negative.")
+
+    if packers_assigned < 0:
+        raise ValueError("Staffing cannot be negative.")
+    
+    if expected_packing_rate <= 0:
+        raise ValueError("Packing rate cannot be 0 or negative.")
+
+    available_work = (
+        current_backlog + expected_incoming_work
+    )
+
+    line_capacity = (
+        packers_assigned * expected_packing_rate
+    )
+
+    capacity_gap = max(0, available_work - line_capacity)
+
+    return {
+        "available_work": available_work,
+        "line_capacity": line_capacity,
+        "capacity_gap": capacity_gap
+    }
+
+def create_dataframe(capacity_gap):
     # Construct model input. Will be in the same format as what
     # was exported in the notebook FC_Operations_Risk_Predictions.ipynb
-    input_data = pd.DataFrame([{
-        "work_pressure": work_pressure,
-        "packers_assigned": packers_assigned,
-        "bottleneck_flag": bottleneck_flag
-        }])
+    input_data = pd.DataFrame([{"capacity_gap": capacity_gap}])
 
     # Enforce expected model features
     input_data = input_data[model_features]
 
     return input_data
     
-def predict(current_backlog, planned_work, packers_assigned, bottleneck_flag):
+def predict(
+        current_backlog,
+        expected_incoming_work,
+        packers_assigned,
+        expected_packing_rate
+        ):
 
-    # If planned work was specified as 0, or not populated, it is
-    # assumed there is no risk per business logic.
-    
-    if current_backlog < 0:
-        raise ValueError("Current Backlog cannot be negative.")
+    features = calculate_capacity_gap(
+        current_backlog,
+        expected_incoming_work,
+        packers_assigned,
+        expected_packing_rate
+    )
 
-    if planned_work < 0:
-        raise ValueError("Planned Work cannot be negative.")
+    X = create_dataframe(features["capacity_gap"])
+    risk_score = float(model_pipeline.predict_proba(X)[0, 1])
 
-    if packers_assigned < 0:
-        raise ValueError("Packers Assigned cannot be negative.")
-
-    if bottleneck_flag not in [0, 1]:
-        raise ValueError("Bottleneck must either be 0 or 1.")
-    
-    if planned_work == 0:
-        probability = None        
-        if current_backlog == 0:
-            prediction = model_metadata["negative_class"]
-        else:
-            prediction = "Prediction unavailable — the model was not trained for zero planned work with an existing backlog."
-
-    elif packers_assigned == 0 and (current_backlog > 0 or planned_work > 0):
-        probability = None
-        prediction = model_metadata["positive_class"]
-        
-    else:
-        # Engineer model feature. This calculation matches what appears
-        # in the notebook FC_Operations_Risk_Predictions.ipynb
-        work_pressure = current_backlog / planned_work
-            
-        input_data = create_dataframe(work_pressure, packers_assigned, bottleneck_flag)
-            
-        # Generate probability from the first (and only) row
-        # for the positive_class (i.e. next_hour_backlog_risk = 1)
-        probability = model_pipeline.predict_proba(input_data)[0, 1]
-        
-        # Apply deployment threshold
-        if probability >= model_metadata["classification_threshold"]:
-            prediction = model_metadata["positive_class"]
-        else:
-            prediction = model_metadata["negative_class"]
-        
-    return prediction, probability
+    return {
+        **features,
+        "risk_score": risk_score,
+        "high_risk": risk_score >= class_threshold
+    }
 
